@@ -6,18 +6,35 @@ export function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const signIn = useAction(api.auth.signIn);
 
+  // Live validation
+  const emailIsValid = email.length > 0 && email.includes("@");
+  const passwordIsValid =
+    password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password);
+  const formIsValid = emailIsValid && passwordIsValid;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formIsValid) {
+      alert(
+        "Please enter a valid email and a password with at least 8 characters, including letters and numbers."
+      );
+      return;
+    }
+
     try {
+      setIsSubmitting(true);
+
       await signIn({
         provider: "password",
         params: {
-          id: email, // Use `id` instead of `username`
-          secret: password, // Use `secret` instead of `password`
-          flow: isSignUp ? "signUp" : "signIn", // Correctly specify the flow
+          id: email,
+          secret: password,
+          flow: isSignUp ? "signUp" : "signIn",
         },
       });
 
@@ -28,7 +45,15 @@ export function SignInForm() {
       );
     } catch (error: any) {
       console.error(error);
-      alert(error.message || "Authentication failed.");
+      if (error.message?.includes("Invalid password")) {
+        alert(
+          "Password must be at least 8 characters, with letters and numbers."
+        );
+      } else {
+        alert(error.message || "Authentication failed.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -43,7 +68,13 @@ export function SignInForm() {
           className="w-full p-2 border rounded"
           placeholder="Email"
         />
+        {!emailIsValid && email.length > 0 && (
+          <p className="text-red-500 text-sm mt-1">
+            Enter a valid email address.
+          </p>
+        )}
       </div>
+
       <div>
         <input
           required
@@ -53,13 +84,21 @@ export function SignInForm() {
           className="w-full p-2 border rounded"
           placeholder="Password"
         />
+        {!passwordIsValid && password.length > 0 && (
+          <p className="text-red-500 text-sm mt-1">
+            Password must be at least 8 characters, with letters and numbers.
+          </p>
+        )}
       </div>
+
       <button
         type="submit"
-        className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        disabled={!formIsValid || isSubmitting}
+        className={`w-full p-2 rounded text-white ${formIsValid ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-400 cursor-not-allowed"}`}
       >
-        {isSignUp ? "Sign Up" : "Sign In"}
+        {isSubmitting ? "Please wait..." : isSignUp ? "Sign Up" : "Sign In"}
       </button>
+
       <button
         type="button"
         onClick={() => setIsSignUp(!isSignUp)}
