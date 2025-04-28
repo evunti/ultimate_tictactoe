@@ -1,26 +1,35 @@
+// src/components/SignInForm.tsx
 import { useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "../convex/_generated/api";
 
 export function SignInForm() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
+
   const signIn = useAction(api.auth.signIn);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await signIn({ 
+      await signIn({
+        provider: "password",
         params: {
-          username,
+          username: email, // <-- must be called `username`, not `email`
           password,
-          create: isSignUp
-        }
+          create: isSignUp, // <-- true = sign up, false = login
+        },
       });
-    } catch (error) {
+
+      alert(
+        isSignUp
+          ? "Account created! You are now signed in."
+          : "Signed in successfully!"
+      );
+    } catch (error: any) {
       console.error(error);
-      alert("Error signing in. Please try again.");
+      alert(error.message || "Authentication failed.");
     }
   };
 
@@ -29,10 +38,11 @@ export function SignInForm() {
       <div>
         <input
           required
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full p-2 border rounded"
-          placeholder="Username"
+          placeholder="Email"
         />
       </div>
       <div>
@@ -56,7 +66,9 @@ export function SignInForm() {
         onClick={() => setIsSignUp(!isSignUp)}
         className="w-full p-2 text-blue-500 hover:text-blue-600"
       >
-        {isSignUp ? "Already have an account? Sign In" : "Need an account? Sign Up"}
+        {isSignUp
+          ? "Already have an account? Sign In"
+          : "Need an account? Sign Up"}
       </button>
     </form>
   );

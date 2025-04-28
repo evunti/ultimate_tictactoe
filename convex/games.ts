@@ -20,8 +20,10 @@ export const makeMove = mutation({
     if (!game) {
       // Create a new game if none exists
       const emptyBoard = Array(9).fill("");
-      const boards = Array(9).fill(null).map(() => [...emptyBoard]);
-      
+      const boards = Array(9)
+        .fill(null)
+        .map(() => [...emptyBoard]);
+
       const gameId = await ctx.db.insert("games", {
         boards,
         currentTurn: "X",
@@ -37,7 +39,11 @@ export const makeMove = mutation({
     const { boardIndex, position } = args;
 
     // Initialize boards and innerWinners if they don't exist
-    const boards = game.boards ?? Array(9).fill(null).map(() => Array(9).fill(""));
+    const boards =
+      game.boards ??
+      Array(9)
+        .fill(null)
+        .map(() => Array(9).fill(""));
     const innerWinners = game.innerWinners ?? Array(9).fill("");
     const activeBoard = game.activeBoard ?? -1;
     const currentPlayer = game.currentTurn;
@@ -58,9 +64,11 @@ export const makeMove = mutation({
     }
 
     // Make the move
-    const newBoards = boards.map((board, index) => 
-      index === boardIndex 
-        ? board.map((cell, pos) => pos === position ? currentPlayer : cell)
+    const newBoards = boards.map((board: string[], index: number) =>
+      index === boardIndex
+        ? board.map((cell: string, pos: number) =>
+            pos === position ? currentPlayer : cell
+          )
         : board
     );
 
@@ -106,7 +114,9 @@ export const getGameState = query({
 
     if (!game) {
       return {
-        boards: Array(9).fill(null).map(() => Array(9).fill("")),
+        boards: Array(9)
+          .fill(null)
+          .map(() => Array(9).fill("")),
         innerWinners: Array(9).fill(""),
         activeBoard: -1,
         currentTurn: "X",
@@ -116,7 +126,11 @@ export const getGameState = query({
     }
 
     return {
-      boards: game.boards ?? Array(9).fill(null).map(() => Array(9).fill("")),
+      boards:
+        game.boards ??
+        Array(9)
+          .fill(null)
+          .map(() => Array(9).fill("")),
       innerWinners: game.innerWinners ?? Array(9).fill(""),
       activeBoard: game.activeBoard ?? -1,
       currentTurn: game.currentTurn,
