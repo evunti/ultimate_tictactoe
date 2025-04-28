@@ -15,9 +15,9 @@ export function SignInForm() {
       await signIn({
         provider: "password",
         params: {
-          username: email, // Must be called `username`, not `email`
-          password,
-          flow: isSignUp ? "signUp" : "signIn", // Add the `flow` parameter
+          id: email, // Use `id` instead of `username`
+          secret: password, // Use `secret` instead of `password`
+          flow: isSignUp ? "signUp" : "signIn", // Correctly specify the flow
         },
       });
 
