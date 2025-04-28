@@ -1,4 +1,3 @@
-// src/components/SignInForm.tsx
 import { useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "../convex/_generated/api";
@@ -16,9 +15,9 @@ export function SignInForm() {
       await signIn({
         provider: "password",
         params: {
-          username: email, // <-- must be called `username`, not `email`
+          username: email, // Must be called `username`, not `email`
           password,
-          create: isSignUp, // <-- true = sign up, false = login
+          flow: isSignUp ? "signUp" : "signIn", // Add the `flow` parameter
         },
       });
 
